@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nykaa Fashion – Online Shopping of Clothes & Accessories</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Top Utility Bar -->
+  <div class="top-utility-bar">
+    <a href="#">📱 App Download</a>
+    <a href="#">❓ Help Desk</a>
+  </div>
+
+  <!-- Main Navigation Header -->
+  <header class="main-header">
+    <div class="header-left">
+      <a href="#" class="brand-logo" onclick="app.showStoreView()">
+        NYKAA <span>FASHION</span>
+      </a>
+
+      <ul class="nav-categories" id="navCategories">
+        <li><a href="#" class="nav-item active" onclick="app.filterByCategory('all', this)">All Products</a></li>
+        <li><a href="#" class="nav-item" onclick="app.filterByCategory('women', this)">Women</a></li>
+        <li><a href="#" class="nav-item" onclick="app.filterByCategory('men', this)">Men</a></li>
+        <li><a href="#" class="nav-item" onclick="app.filterByCategory('kids', this)">Kids</a></li>
+        <li><a href="#" class="nav-item" onclick="app.filterByCategory('indianwear', this)">Indianwear</a></li>
+        <li><a href="#" class="nav-item" onclick="app.filterByCategory('westernwear', this)">Westernwear</a></li>
+        <li><a href="#" class="nav-item" onclick="app.filterByCategory('bags', this)">Bags</a></li>
+        <li><a href="#" class="nav-item" onclick="app.filterByCategory('jewellery', this)">Jewellery</a></li>
+        <li><a href="#" class="nav-item" onclick="app.filterByCategory('luxe', this)">Luxe</a></li>
+      </ul>
+    </div>
+
+    <div class="header-right">
+      <!-- Search Input -->
+      <div class="search-container">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search for products, styles, brands..." onkeyup="app.handleSearch(event)">
+      </div>
+
+      <!-- Fashion/Luxe Toggle -->
+      <div class="mode-toggle-pill">
+        <button class="mode-btn active" id="modeFashion" onclick="app.toggleMode('fashion')">Fashion</button>
+        <button class="mode-btn" id="modeLuxe" onclick="app.toggleMode('luxe')">Luxe</button>
+      </div>
+
+      <!-- Account Action Dropdown -->
+      <div class="account-dropdown-wrapper" id="accountDropdownWrap">
+        <button class="icon-action-btn" onclick="app.toggleAccountDropdown()" title="Account">
+          <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <span id="accountHeaderLabel">Account</span>
+        </button>
+
+        <!-- Account Popover Menu -->
+        <div class="account-popover" id="accountPopover">
+          <!-- Rendered via JS based on login state -->
+        </div>
+      </div>
+
+      <!-- Wishlist Action -->
+      <button class="icon-action-btn" onclick="app.showWishlistModal()" title="My Wishlist">
+        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <span>Wishlist</span>
+        <span class="wishlist-dot" id="wishlistDot" style="display: none;"></span>
+      </button>
+
+      <!-- Cart Action -->
+      <button class="icon-action-btn" onclick="app.toggleCartDrawer(true)" title="Shopping Bag">
+        <svg viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <span>Cart</span>
+        <span class="badge-count" id="cartCount" style="display: none;">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- STORE VIEW WRAPPER -->
+  <main id="storeView">
+    <!-- Hero Banner Carousel -->
+    <section class="hero-carousel">
+      <div class="hero-text-area">
+        <span class="hero-tag">FESTIVE & DESIGNER DEALS</span>
+        <h1 class="hero-title">NYKAA FASHION GRAND SALE</h1>
+        <p class="hero-subtitle">UP TO 75% OFF + Extra 10% Off on Top Designers</p>
+        <button class="hero-cta" onclick="app.filterByCategory('westernwear')">EXPLORE FESTIVE COLLECTION</button>
+      </div>
+      <div class="hero-image-grid">
+        <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&auto=format&fit=crop&q=80" class="hero-img-card" alt="Fashion 1">
+        <img src="https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=400&auto=format&fit=crop&q=80" class="hero-img-card" alt="Fashion 2">
+      </div>
+    </section>
+
+    <!-- Circular Category Avatars (Hot & Happening) -->
+    <section class="section-container">
+      <div class="section-heading">
+        <span>🔥 Hot & Happening Categories</span>
+      </div>
+      <div class="category-avatars-row" id="categoryAvatars">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+    <!-- Main Product Store Section (Left Filters + Right 4-Col Grid) -->
+    <div class="store-layout">
+      <!-- Left Filters Sidebar (Nykaa Accordions) -->
+      <aside class="filters-sidebar">
+        <div class="filter-header">
+          <span class="filter-title">Filters</span>
+          <button class="reset-btn" onclick="app.resetFilters()">Reset 🔄</button>
+        </div>
+
+        <!-- Gender Accordion -->
+        <div class="filter-accordion">
+          <div class="accordion-header" onclick="app.toggleAccordion(this)">
+            <span>Gender</span>
+            <span class="accordion-icon">▼</span>
+          </div>
+          <div class="accordion-content">
+            <div class="filter-options-list">
+              <label class="filter-checkbox-label">
+                <input type="radio" name="gender" value="all" checked onchange="app.applyFilters()"> All
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="radio" name="gender" value="Women" onchange="app.applyFilters()"> Women
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="radio" name="gender" value="Men" onchange="app.applyFilters()"> Men
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="radio" name="gender" value="Kids" onchange="app.applyFilters()"> Kids
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category Accordion -->
+        <div class="filter-accordion">
+          <div class="accordion-header" onclick="app.toggleAccordion(this)">
+            <span>Category</span>
+            <span class="accordion-icon">▼</span>
+          </div>
+          <div class="accordion-content">
+            <div class="filter-options-list" id="filterCategoryList">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Brand Accordion with Search -->
+        <div class="filter-accordion">
+          <div class="accordion-header" onclick="app.toggleAccordion(this)">
+            <span>Brand</span>
+            <span class="accordion-icon">▼</span>
+          </div>
+          <div class="accordion-content">
+            <input type="text" class="brand-filter-search" id="brandSearchInput" placeholder="Search Brand..." onkeyup="app.filterBrandList(event)">
+            <div class="filter-options-list brand-scroll-list" id="filterBrandList">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Price Range Accordion -->
+        <div class="filter-accordion">
+          <div class="accordion-header" onclick="app.toggleAccordion(this)">
+            <span>Price</span>
+            <span class="accordion-icon">▼</span>
+          </div>
+          <div class="accordion-content">
+            <div class="filter-options-list">
+              <label class="filter-checkbox-label">
+                <input type="radio" name="priceRange" value="all" checked onchange="app.applyFilters()"> All Prices
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="radio" name="priceRange" value="0-1000" onchange="app.applyFilters()"> Under ₹1,000
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="radio" name="priceRange" value="1000-2500" onchange="app.applyFilters()"> ₹1,000 - ₹2,500
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="radio" name="priceRange" value="2500-5000" onchange="app.applyFilters()"> ₹2,500 - ₹5,000
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="radio" name="priceRange" value="5000-100000" onchange="app.applyFilters()"> Above ₹5,000
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Discount Accordion -->
+        <div class="filter-accordion">
+          <div class="accordion-header" onclick="app.toggleAccordion(this)">
+            <span>Discount %</span>
+            <span class="accordion-icon">▼</span>
+          </div>
+          <div class="accordion-content">
+            <div class="filter-options-list">
+              <label class="filter-checkbox-label">
+                <input type="radio" name="discount" value="0" checked onchange="app.applyFilters()"> All Discounts
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="radio" name="discount" value="20" onchange="app.applyFilters()"> 20% and above
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="radio" name="discount" value="40" onchange="app.applyFilters()"> 40% and above
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="radio" name="discount" value="60" onchange="app.applyFilters()"> 60% and above
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Size Accordion -->
+        <div class="filter-accordion">
+          <div class="accordion-header" onclick="app.toggleAccordion(this)">
+            <span>Size</span>
+            <span class="accordion-icon">▼</span>
+          </div>
+          <div class="accordion-content">
+            <div class="size-pills" id="sizePills">
+              <button class="size-pill" onclick="app.toggleSizeFilter('XS', this)">XS</button>
+              <button class="size-pill" onclick="app.toggleSizeFilter('S', this)">S</button>
+              <button class="size-pill" onclick="app.toggleSizeFilter('M', this)">M</button>
+              <button class="size-pill" onclick="app.toggleSizeFilter('L', this)">L</button>
+              <button class="size-pill" onclick="app.toggleSizeFilter('XL', this)">XL</button>
+              <button class="size-pill" onclick="app.toggleSizeFilter('XXL', this)">XXL</button>
+              <button class="size-pill" onclick="app.toggleSizeFilter('UK 5', this)">UK 5</button>
+              <button class="size-pill" onclick="app.toggleSizeFilter('UK 6', this)">UK 6</button>
+              <button class="size-pill" onclick="app.toggleSizeFilter('UK 7', this)">UK 7</button>
+              <button class="size-pill" onclick="app.toggleSizeFilter('One Size', this)">One Size</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Curations Accordion -->
+        <div class="filter-accordion">
+          <div class="accordion-header" onclick="app.toggleAccordion(this)">
+            <span>Curations & Badges</span>
+            <span class="accordion-icon">▼</span>
+          </div>
+          <div class="accordion-content">
+            <div class="filter-options-list">
+              <label class="filter-checkbox-label">
+                <input type="radio" name="badge" value="all" checked onchange="app.applyFilters()"> All Items
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="radio" name="badge" value="BESTSELLER" onchange="app.applyFilters()"> Bestseller 🔥
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="radio" name="badge" value="EXCLUSIVE" onchange="app.applyFilters()"> Exclusive ✨
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="radio" name="badge" value="LATEST STYLE" onchange="app.applyFilters()"> Latest Style 🌟
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="radio" name="badge" value="RESPONSIBLE" onchange="app.applyFilters()"> Responsible 🌿
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Color Accordion -->
+        <div class="filter-accordion">
+          <div class="accordion-header" onclick="app.toggleAccordion(this)">
+            <span>Color</span>
+            <span class="accordion-icon">▼</span>
+          </div>
+          <div class="accordion-content">
+            <div class="color-swatches" id="colorSwatches">
+              <div class="color-dot" style="background:#000000;" title="Black" onclick="app.toggleColorFilter('#000000', this)"></div>
+              <div class="color-dot" style="background:#E80071;" title="Pink" onclick="app.toggleColorFilter('#E80071', this)"></div>
+              <div class="color-dot" style="background:#1E90FF;" title="Blue" onclick="app.toggleColorFilter('#1E90FF', this)"></div>
+              <div class="color-dot" style="background:#8B4513;" title="Brown" onclick="app.toggleColorFilter('#8B4513', this)"></div>
+              <div class="color-dot" style="background:#F5F5DC;" title="Cream" onclick="app.toggleColorFilter('#F5F5DC', this)"></div>
+              <div class="color-dot" style="background:#FFD700;" title="Gold" onclick="app.toggleColorFilter('#FFD700', this)"></div>
+              <div class="color-dot" style="background:#FFFFFF;" title="White" onclick="app.toggleColorFilter('#FFFFFF', this)"></div>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- Right Main Listing Grid -->
+      <section class="listing-area">
+        <!-- Curated Showcase Blocks (Trending, On Sale, In The Spotlight) -->
+        <div id="homepageBlocksContainer"></div>
+
+        <div class="listing-top-bar">
+          <div class="listing-title-area">
+            <h2 id="listingCategoryTitle">Buy Women's & Designer Collection</h2>
+            <span class="listing-count" id="listingCountLabel">Loading items...</span>
+          </div>
+
+          <!-- Sort Select -->
+          <div>
+            <label for="sortSelect" style="font-size: 12px; color: #666; margin-right: 6px;">Sort by:</label>
+            <select id="sortSelect" class="sort-select" onchange="app.applyFilters()">
+              <option value="popularity">Popularity</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="discount">Highest Discount</option>
+              <option value="newest">Newest Arrivals</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Product Cards Grid -->
+        <div class="product-cards-grid" id="productGrid">
+          <!-- Rendered via JS -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  </main>
+
+  <!-- CART SLIDE-OVER DRAWER (Screenshot 4) -->
+  <div class="cart-drawer-overlay" id="cartOverlay" onclick="app.toggleCartDrawer(false)"></div>
+  <div class="cart-drawer" id="cartDrawer">
+    <div class="drawer-header">
+      <span class="drawer-title">Shopping Bag 👜</span>
+      <button class="close-drawer-btn" onclick="app.toggleCartDrawer(false)">✕</button>
+    </div>
+
+    <div class="drawer-body" id="cartBody">
+      <!-- Rendered via JS -->
+    </div>
+
+    <div class="drawer-footer">
+      <div class="price-summary-row">
+        <span>Total MRP</span>
+        <span id="cartTotalMrp">₹0</span>
+      </div>
+      <div class="price-summary-row" style="color: var(--badge-green);">
+        <span>Bag Discount</span>
+        <span id="cartTotalDiscount">-₹0</span>
+      </div>
+      <div class="total-payable-row">
+        <span>Amount Payable</span>
+        <span id="cartTotalAmount">₹0</span>
+      </div>
+      <button class="proceed-btn" onclick="app.openCheckoutModal()">Proceed to Buy →</button>
+    </div>
+  </div>
+
+  <!-- WISHLIST MODAL (Screenshot 3) -->
+  <div class="modal-overlay" id="wishlistModal">
+    <div class="checkout-modal" style="width: 800px;">
+      <div class="checkout-header">
+        <h2 style="font-size: 18px; font-weight: 700;">My Wishlist ❤️</h2>
+        <button class="close-drawer-btn" onclick="app.closeWishlistModal()">✕</button>
+      </div>
+      <div style="padding: 24px;">
+        <div class="product-cards-grid" id="wishlistGrid" style="grid-template-columns: repeat(3, 1fr);">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REMOVE FROM CART CONFIRMATION MODAL (Nykaa Reference) -->
+  <div class="modal-overlay" id="removeCartModal" style="z-index: 10050;">
+    <div class="remove-cart-modal-content">
+      <button class="remove-modal-close-btn" onclick="app.closeRemoveCartModal()">✕</button>
+      <div class="remove-modal-image-wrap">
+        <img id="removeModalItemImg" src="" alt="Product Thumbnail">
+      </div>
+      <h3 class="remove-modal-title">Are you sure?</h3>
+      <p class="remove-modal-subtext">It took you so long to find this item, wishlist instead.</p>
+      <button class="remove-modal-btn-primary" onclick="app.confirmMoveToWishlist()">Move to wishlist</button>
+      <button class="remove-modal-btn-secondary" onclick="app.confirmRemoveCartItem()">Remove</button>
+    </div>
+  </div>
+
+  <!-- CHECKOUT & PAYMENT MODAL (Screenshot 7) -->
+  <div class="modal-overlay" id="checkoutModal">
+    <div class="checkout-modal">
+      <div class="checkout-header">
+        <h2 style="font-size: 18px; font-weight: 700;">Checkout & Payment</h2>
+        <div class="checkout-steps">
+          <div class="step-item active">
+            <span class="step-circle">1</span> Address
+          </div>
+          <div class="step-item active">
+            <span class="step-circle">2</span> Payment
+          </div>
+        </div>
+        <button class="close-drawer-btn" onclick="app.closeCheckoutModal()">✕</button>
+      </div>
+
+      <div class="checkout-body">
+        <!-- Left: Address & Payment Selection -->
+        <div>
+          <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 12px;">Shipping Address</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" id="chkName" class="form-input" value="Ananya Sharma">
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="text" id="chkPhone" class="form-input" value="+91 98765 43210">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Delivery Address</label>
+            <input type="text" id="chkAddress" class="form-input" value="Flat 402, Lotus Apartments, MG Road">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
+            <div class="form-group">
+              <label>City & State</label>
+              <input type="text" id="chkCity" class="form-input" value="Mumbai, Maharashtra">
+            </div>
+            <div class="form-group">
+              <label>Pincode</label>
+              <input type="text" id="chkPincode" class="form-input" value="400001">
+            </div>
+          </div>
+
+          <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 12px;">Payment Method</h3>
+          <div class="payment-options-list">
+            <div class="payment-option-card selected" onclick="app.selectPaymentMethod('UPI', this)">
+              <span>📱</span>
+              <div>
+                <div style="font-weight: 700; font-size: 13px;">UPI (Google Pay, PhonePe, Paytm)</div>
+                <div style="font-size: 11px; color: #666;">Instant scan & pay via QR Code</div>
+              </div>
+            </div>
+            <div class="payment-option-card" onclick="app.selectPaymentMethod('Card', this)">
+              <span>💳</span>
+              <div>
+                <div style="font-weight: 700; font-size: 13px;">Credit / Debit Card</div>
+                <div style="font-size: 11px; color: #666;">Visa, Mastercard, RuPay</div>
+              </div>
+            </div>
+            <div class="payment-option-card" onclick="app.selectPaymentMethod('COD', this)">
+              <span>💵</span>
+              <div>
+                <div style="font-weight: 700; font-size: 13px;">Cash On Delivery</div>
+                <div style="font-size: 11px; color: #666;">Pay cash when product arrives</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Summary Panel -->
+        <div style="background: #F9FAFB; padding: 20px; border-radius: 8px; border: 1px solid var(--light-border);">
+          <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 14px;">Order Summary</h3>
+          <div class="price-summary-row">
+            <span>Total Payable</span>
+            <span id="chkTotalPayable" style="font-weight: 700;">₹0</span>
+          </div>
+          <div class="price-summary-row" style="color: var(--badge-green); font-size: 12px; margin-top: 4px;">
+            <span>You are saving</span>
+            <span id="chkTotalSaving">₹0</span>
+          </div>
+          <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--light-border);">
+          <button class="proceed-btn" style="background: var(--primary-pink);" onclick="app.placeOrder()">
+            Place Order & Pay 🔒
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTH / LOGIN MODAL -->
+  <div class="modal-overlay" id="authModal">
+    <div class="checkout-modal" style="width: 440px; padding: 0; overflow: hidden; border-radius: 12px;">
+      <div class="auth-banner" style="background: linear-gradient(135deg, #E80071, #FF5A9E); color: #fff; padding: 24px; text-align: center; position: relative;">
+        <button class="close-drawer-btn" style="position: absolute; top: 12px; right: 16px; color: #fff;" onclick="app.closeAuthModal()">✕</button>
+        <h2 style="font-size: 22px; font-weight: 800; color: #fff;">LOGIN / REGISTER</h2>
+        <p style="font-size: 12px; opacity: 0.9; margin-top: 4px; color: #fff;">Get access to your Orders, Wishlist & Instant Checkout</p>
+      </div>
+
+      <div style="padding: 28px;" id="authStep1">
+        <div class="form-group">
+          <label style="font-weight: 700; font-size: 13px;">Mobile Number or Email ID</label>
+          <input type="text" id="authIdentifier" class="form-input" placeholder="e.g. 9643116863 or name@example.com" value="9643116863">
+        </div>
+        <p style="font-size: 11px; color: #666; margin-bottom: 16px;">By continuing, you agree to Nykaa Fashion's Terms of Use and Privacy Policy.</p>
+        <button class="proceed-btn" onclick="app.submitAuthStep1()">PROCEED →</button>
+      </div>
+
+      <div style="padding: 28px; display: none;" id="authStep2">
+        <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 4px;">Enter Verification Code</h3>
+        <p style="font-size: 12px; color: #666; margin-bottom: 16px;" id="otpSubtext">OTP sent to 9643116863 (Use <strong>1234</strong>)</p>
+        
+        <div class="form-group" id="nameGroup" style="display: none;">
+          <label style="font-weight: 700; font-size: 13px;">Full Name</label>
+          <input type="text" id="authName" class="form-input" placeholder="Your Name" value="Ananya Sharma">
+        </div>
+
+        <div class="form-group">
+          <label style="font-weight: 700; font-size: 13px;">4-Digit OTP</label>
+          <input type="text" id="authOtp" class="form-input" placeholder="1234" maxlength="4" value="1234" style="letter-spacing: 6px; font-size: 18px; text-align: center; font-weight: 800;">
+        </div>
+
+        <button class="proceed-btn" onclick="app.verifyAuthOtp()">VERIFY & CONTINUE ✓</button>
+        <button class="reset-btn" style="width: 100%; margin-top: 12px; text-align: center; background: none; color: #666;" onclick="app.backToAuthStep1()">← Change Phone / Email</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MY ORDERS MODAL -->
+  <div class="modal-overlay" id="ordersModal">
+    <div class="checkout-modal" style="width: 750px;">
+      <div class="checkout-header">
+        <h2 style="font-size: 18px; font-weight: 700;">My Orders 📦</h2>
+        <button class="close-drawer-btn" onclick="app.closeOrdersModal()">✕</button>
+      </div>
+      <div style="padding: 24px; max-height: 550px; overflow-y: auto;" id="userOrdersList">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nykaa Fashion – Admin Dashboard</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body style="background: #F9FAFB;">
+
+  <!-- Admin Navigation Bar -->
+  <header class="main-header" style="background: #111827; color: #FFFFFF; border-bottom: none;">
+    <div class="header-left">
+      <a href="/admin" class="brand-logo" style="color: #E80071;">
+        NYKAA <span style="color: #FFFFFF;">ADMIN</span>
+      </a>
+      <span style="font-size: 13px; color: #9CA3AF; font-weight: 500;">Store Management & Analytics Control</span>
+    </div>
+    <div class="header-right">
+      <a href="/" class="admin-switch-btn" style="background: #E80071; color: #FFFFFF; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 13px;">
+        🛍️ Go to Customer Storefront
+      </a>
+    </div>
+  </header>
+
+  <!-- ADMIN DASHBOARD VIEW WRAPPER -->
+  <main id="adminView" class="admin-layout">
+    <div class="admin-top-bar">
+      <div>
+        <h1 class="admin-title">🛠️ Product & Analytics Control</h1>
+        <p style="font-size: 13px; color: #666;">Manage store products, view total revenue, and track order statuses.</p>
+      </div>
+      <div style="display: flex; gap: 12px;">
+        <button class="proceed-btn" style="background: #2563EB; margin: 0; padding: 10px 16px; font-size: 13px;" onclick="admin.openAddProductModal()">
+          ➕ Add New Product
+        </button>
+        <button class="proceed-btn" style="background: #DC2626; margin: 0; padding: 10px 16px; font-size: 13px;" onclick="admin.reseedData()">
+          🔄 Reseed Sample Inventory
+        </button>
+      </div>
+    </div>
+
+    <!-- Analytics Cards -->
+    <div class="admin-stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Sales Revenue</div>
+        <div class="stat-value" id="adminTotalSales">₹0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Orders Placed</div>
+        <div class="stat-value" id="adminTotalOrders">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Active Products</div>
+        <div class="stat-value" id="adminTotalProducts">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Customer Wishlist Adds</div>
+        <div class="stat-value" id="adminTotalWishlist">0</div>
+      </div>
+    </div>
+
+    <!-- Product Inventory Table -->
+    <div class="admin-table-container">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 style="font-size: 16px; font-weight: 700;">📦 Product Inventory Catalog</h3>
+        <input type="text" class="form-input" style="width: 280px;" placeholder="Search catalog by title, brand..." onkeyup="admin.filterTable(event)">
+      </div>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Image</th>
+            <th>Title</th>
+            <th>Brand</th>
+            <th>Category</th>
+            <th>Price (MRP)</th>
+            <th>Discount %</th>
+            <th>Stock Qty</th>
+            <th>Badge</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="adminProductTableBody">
+          <!-- Rendered via JS -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- ADD / EDIT PRODUCT MODAL (ADMIN) -->
+  <div class="modal-overlay" id="adminProductModal">
+    <div class="checkout-modal" style="width: 550px;">
+      <div class="checkout-header">
+        <h2 style="font-size: 18px; font-weight: 700;" id="adminModalTitle">Add New Product</h2>
+        <button class="close-drawer-btn" onclick="admin.closeModal()">✕</button>
+      </div>
+      <div style="padding: 24px;">
+        <form id="adminProductForm" onsubmit="admin.saveProduct(event)">
+          <input type="hidden" id="admProdId">
+          <div class="form-group">
+            <label>Product Title</label>
+            <input type="text" id="admTitle" class="form-input" required>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label>Brand Name</label>
+              <input type="text" id="admBrand" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select id="admCategory" class="form-input">
+                <option value="westernwear">Westernwear</option>
+                <option value="indianwear">Indianwear</option>
+                <option value="men">Men</option>
+                <option value="footwear">Footwear</option>
+                <option value="bags">Bags</option>
+                <option value="jewellery">Jewellery</option>
+                <option value="kids">Kids</option>
+                <option value="luxe">Luxe</option>
+              </select>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label>Selling Price (₹)</label>
+              <input type="number" id="admPrice" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label>MRP Price (₹)</label>
+              <input type="number" id="admMrp" class="form-input" required>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label>Stock Qty</label>
+              <input type="number" id="admStock" class="form-input" value="50" required>
+            </div>
+            <div class="form-group">
+              <label>Badge Tag</label>
+              <select id="admBadge" class="form-input">
+                <option value="">None</option>
+                <option value="BESTSELLER">BESTSELLER</option>
+                <option value="EXCLUSIVE">EXCLUSIVE</option>
+                <option value="LATEST STYLE">LATEST STYLE</option>
+                <option value="RESPONSIBLE">RESPONSIBLE</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="proceed-btn" style="margin-top: 16px;">Save Product</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>
