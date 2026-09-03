@@ -5,8 +5,8 @@
 This deployment plan outlines the steps required to deploy both the **Frontend UI** and **Backend Express REST API** of the Nykaa Fashion E-Commerce platform using **Streamlit** (Streamlit Community Cloud or self-hosted Streamlit server).
 
 The platform leverages a hybrid architecture:
-- **`app.py`**: Streamlit entrypoint application that boots the Node.js Express server in the background and embeds the pixel-perfect HTML/CSS/JS Customer Storefront inside Streamlit components, alongside native Python SQLite analytics widgets.
-- **`requirements.txt`**: Declares required Python libraries (`streamlit`, `requests`, `pandas`).
+- **`app.py`**: Streamlit entrypoint application that boots the Node.js Express server in the background and embeds the pixel-perfect HTML/CSS/JS Nykaa Fashion Storefront full-screen.
+- **`requirements.txt`**: Declares required Python libraries (`streamlit`, `requests`).
 - **`packages.txt`**: Declares required OS dependencies for Streamlit Community Cloud (`nodejs`, `npm`).
 
 ---
@@ -15,11 +15,9 @@ The platform leverages a hybrid architecture:
 
 ```mermaid
 graph TD
-    subgraph Streamlit_Host ["Streamlit Environment"]
-        APP["Streamlit Main App\n(app.py)"]
-        SIDEBAR["Streamlit Control Sidebar & Tabs"]
-        EMBED_SF["Embedded Storefront Component\n(iframe -> http://localhost:3000/)"]
-        PY_ANALYTICS["Native Streamlit Python Analytics\n(st.metric, st.bar_chart)"]
+    subgraph Streamlit_Host ["Streamlit Cloud Host"]
+        APP["Streamlit Entrypoint\n(app.py)"]
+        EMBED_SF["Full-Screen Embedded Storefront\n(iframe -> http://localhost:3000/)"]
     end
 
     subgraph Node_Subprocess ["Node.js Background Process"]
@@ -30,7 +28,6 @@ graph TD
     APP -->|Subprocess Boot| EXPRESS
     EXPRESS --> SQLITE
     EMBED_SF --> EXPRESS
-    PY_ANALYTICS -->|Direct SQLite Query| SQLITE
 ```
 
 ---
