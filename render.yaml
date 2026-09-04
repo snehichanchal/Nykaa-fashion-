@@ -1,0 +1,19 @@
+# Render Blueprint.
+# Without this file Render autodetects a Python service (because requirements.txt
+# and packages.txt sit at the repo root for the Streamlit shim) and never runs
+# npm install — which is what caused "Cannot find module 'better-sqlite3'".
+services:
+  - type: web
+    name: nykaa-fashion
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm ci
+    # Not "npm run seed && npm start": seed.js DROPs every table, so seeding on
+    # each boot wipes all orders. db/database.sqlite is committed and already
+    # populated. Reseed on demand from the admin portal instead.
+    startCommand: npm start
+    healthCheckPath: /api/categories
+    envVars:
+      - key: NODE_VERSION
+        value: "22.11.0"

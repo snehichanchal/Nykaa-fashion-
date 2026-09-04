@@ -6,6 +6,9 @@ const { execSync } = require('child_process');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+// '::' binds dual-stack (IPv6 + IPv4-mapped). '0.0.0.0' would be IPv4-only,
+// which breaks Tailscale MagicDNS clients that resolve the AAAA record first.
+const HOST = process.env.HOST || '::';
 
 app.use(cors());
 app.use(express.json());
@@ -427,6 +430,10 @@ app.post('/api/checkout', (req, res) => {
       }
     });
   } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // -------------------------------------------------------------
 // USER AUTHENTICATION & ACCOUNT ENDPOINTS
 // -------------------------------------------------------------
@@ -624,6 +631,7 @@ app.post('/api/admin/reseed', (req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
-  console.log(`Nykaa Fashion POC Server running on http://localhost:${PORT}`);
+app.listen(PORT, HOST, () => {
+  const shown = (HOST === '::' || HOST === '0.0.0.0') ? 'localhost' : HOST;
+  console.log(`Nykaa Fashion POC Server running on http://${shown}:${PORT} (bound to ${HOST} — all interfaces)`);
 });
