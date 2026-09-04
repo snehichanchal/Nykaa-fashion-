@@ -458,14 +458,14 @@ const app = {
       const badgeClass = (p.badge || '').toLowerCase().replace(/\s+/g, '');
 
       return `
-        <div class="product-card ${isWishlistFeatured ? 'wishlist-featured-card' : ''}">
+        <div class="product-card ${isWishlistFeatured ? 'wishlist-featured-card' : ''}" onclick="app.openProductDetailModal(${p.id})">
           <div class="product-image-wrap">
             <img src="${img}" class="product-img" alt="${p.title}">
             ${isWishlistFeatured 
               ? `<span class="badge-tag wishlist-match">❤️ IN YOUR WISHLIST</span>`
               : (p.badge ? `<span class="badge-tag ${badgeClass}">${p.badge}</span>` : '')
             }
-            <button class="wishlist-heart-btn ${isWishlisted ? 'active' : ''}" onclick="app.toggleWishlist(${p.id})">
+            <button class="wishlist-heart-btn ${isWishlisted ? 'active' : ''}" onclick="event.stopPropagation(); app.toggleWishlist(${p.id})">
               <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
             </button>
           </div>
@@ -478,8 +478,8 @@ const app = {
               <span class="discount-badge">${p.discount_percent}% off</span>
             </div>
             ${isWishlistFeatured
-              ? `<button class="card-action-btn" style="background: var(--primary-pink); color: #FFFFFF;" onclick="app.moveToBag(${p.id})">MOVE TO BAG 🛍️</button>`
-              : `<button class="card-action-btn" onclick="app.addToBag(${p.id})">ADD TO BAG</button>`
+              ? `<button class="card-action-btn" style="background: var(--primary-pink); color: #FFFFFF;" onclick="event.stopPropagation(); app.moveToBag(${p.id})">MOVE TO BAG 🛍️</button>`
+              : `<button class="card-action-btn" onclick="event.stopPropagation(); app.addToBag(${p.id})">ADD TO BAG</button>`
             }
           </div>
         </div>
@@ -568,14 +568,14 @@ const app = {
       const badgeClass = (p.badge || '').toLowerCase().replace(/\s+/g, '');
 
       return `
-        <div class="product-card ${isWishlistFeatured ? 'wishlist-featured-card' : ''}">
+        <div class="product-card ${isWishlistFeatured ? 'wishlist-featured-card' : ''}" onclick="app.openProductDetailModal(${p.id})">
           <div class="product-image-wrap">
             <img src="${img}" class="product-img" alt="${p.title}">
             ${isWishlistFeatured 
               ? `<span class="badge-tag wishlist-match">❤️ IN YOUR WISHLIST</span>`
               : (p.badge ? `<span class="badge-tag ${badgeClass}">${p.badge}</span>` : '')
             }
-            <button class="wishlist-heart-btn ${isWishlisted ? 'active' : ''}" onclick="app.toggleWishlist(${p.id})">
+            <button class="wishlist-heart-btn ${isWishlisted ? 'active' : ''}" onclick="event.stopPropagation(); app.toggleWishlist(${p.id})">
               <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
             </button>
           </div>
@@ -588,8 +588,8 @@ const app = {
               <span class="discount-badge">${p.discount_percent}% off</span>
             </div>
             ${isWishlistFeatured
-              ? `<button class="card-action-btn" style="background: var(--primary-pink); color: #FFFFFF;" onclick="app.moveToBag(${p.id})">MOVE TO BAG 🛍️</button>`
-              : `<button class="card-action-btn" onclick="app.addToBag(${p.id})">ADD TO BAG</button>`
+              ? `<button class="card-action-btn" style="background: var(--primary-pink); color: #FFFFFF;" onclick="event.stopPropagation(); app.moveToBag(${p.id})">MOVE TO BAG 🛍️</button>`
+              : `<button class="card-action-btn" onclick="event.stopPropagation(); app.addToBag(${p.id})">ADD TO BAG</button>`
             }
           </div>
         </div>
@@ -748,6 +748,138 @@ const app = {
     this.state.pendingSizeProduct = null;
     const modal = document.getElementById('sizeSelectionModal');
     if (modal) modal.classList.remove('open');
+  },
+
+  openProductDetailModal(productId) {
+    let product = this.state.products.find(p => p.id === productId) ||
+                  this.state.wishlist.find(p => p.id === productId);
+
+    if (!product) return;
+    this.state.activeDetailProduct = product;
+
+    // Breadcrumbs
+    const bc = document.getElementById('pdpBreadcrumbs');
+    if (bc) bc.innerText = `Home > Women > ${product.category_slug || 'Westernwear'} > ${product.brand_name || 'Brand'}`;
+
+    // Badges
+    const badgesEl = document.getElementById('pdpBadges');
+    if (badgesEl) badgesEl.innerText = (product.badge || 'EXCLUSIVE | LATEST STYLE').toUpperCase();
+
+    // Title & Brand
+    const brandEl = document.getElementById('pdpBrand');
+    if (brandEl) brandEl.innerText = product.brand_name || '';
+
+    const titleEl = document.getElementById('pdpTitle');
+    if (titleEl) titleEl.innerText = product.title || '';
+
+    // Prices
+    const priceEl = document.getElementById('pdpPrice');
+    if (priceEl) priceEl.innerText = `₹${(product.price || 0).toLocaleString()}`;
+
+    const discountEl = document.getElementById('pdpDiscount');
+    if (discountEl) discountEl.innerText = `${product.discount_percent || 0}% Off`;
+
+    const mrpEl = document.getElementById('pdpMrp');
+    if (mrpEl) mrpEl.innerText = `MRP ₹${(product.mrp || 0).toLocaleString()} Inclusive of all taxes`;
+
+    // Images
+    const imgs = product.images && product.images.length > 0 ? product.images : [product.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80'];
+    const galleryImgs = imgs.length >= 3 ? imgs : [imgs[0], imgs[0], imgs[0]];
+
+    const mainImgEl = document.getElementById('pdpMainImg');
+    if (mainImgEl) mainImgEl.src = galleryImgs[0];
+
+    const thumbsCol = document.getElementById('pdpThumbsCol');
+    if (thumbsCol) {
+      thumbsCol.innerHTML = galleryImgs.map((imgUrl, idx) => `
+        <img src="${imgUrl}" class="pdp-thumb-img ${idx === 0 ? 'active' : ''}" onclick="app.setMainPdpImage('${imgUrl}', this)" alt="Thumbnail ${idx + 1}">
+      `).join('');
+    }
+
+    // Size Pills
+    const sizes = product.sizes || ['XS', 'S', 'M', 'L', 'XL', '2XL'];
+    this.state.selectedPdpSize = sizes[0];
+    const sizePillsEl = document.getElementById('pdpSizePills');
+    if (sizePillsEl) {
+      sizePillsEl.innerHTML = sizes.map((s, idx) => `
+        <button class="pdp-size-pill ${idx === 0 ? 'selected' : ''}" onclick="app.selectPdpSize('${s}', this)">${s}</button>
+      `).join('');
+    }
+
+    // Model Info
+    const modelDesc = document.getElementById('pdpModelDesc');
+    if (modelDesc) modelDesc.innerText = `Model Height is 5'8" and is Wearing Size ${sizes[0] || 'S'}.`;
+
+    // Update PDP Wishlist Button state
+    this.renderPdpWishlistButton();
+
+    // Show modal
+    const modal = document.getElementById('productDetailModal');
+    if (modal) modal.classList.add('open');
+  },
+
+  renderPdpWishlistButton() {
+    const product = this.state.activeDetailProduct;
+    if (!product) return;
+
+    const btn = document.getElementById('pdpWishlistBtn');
+    if (!btn) return;
+
+    const isWishlisted = this.state.wishlist.some(w => w.id === product.id);
+    if (isWishlisted) {
+      btn.className = 'pdp-wishlist-btn wishlisted';
+      btn.innerHTML = `<span style="color: #E80071; font-size: 18px; margin-right: 4px;">❤️</span> Added to Wishlist`;
+    } else {
+      btn.className = 'pdp-wishlist-btn';
+      btn.innerHTML = `<span style="color: #64748B; font-size: 18px; margin-right: 4px;">♡</span> Add to Wishlist`;
+    }
+  },
+
+  setMainPdpImage(url, el) {
+    const mainImgEl = document.getElementById('pdpMainImg');
+    if (mainImgEl) mainImgEl.src = url;
+    document.querySelectorAll('.pdp-thumb-img').forEach(t => t.classList.remove('active'));
+    if (el) el.classList.add('active');
+  },
+
+  selectPdpSize(size, el) {
+    this.state.selectedPdpSize = size;
+    document.querySelectorAll('.pdp-size-pill').forEach(p => p.classList.remove('selected'));
+    if (el) el.classList.add('selected');
+  },
+
+  closeProductDetailModal() {
+    this.state.activeDetailProduct = null;
+    const modal = document.getElementById('productDetailModal');
+    if (modal) modal.classList.remove('open');
+  },
+
+  async togglePdpWishlist() {
+    const product = this.state.activeDetailProduct;
+    if (!product) return;
+
+    await this.toggleWishlist(product.id);
+    this.renderPdpWishlistButton();
+  },
+
+  async addPdpToBag() {
+    const product = this.state.activeDetailProduct;
+    const size = this.state.selectedPdpSize || 'S';
+    if (!product) return;
+
+    this.closeProductDetailModal();
+    const isWishlisted = this.state.wishlist.some(w => w.id === product.id);
+    if (isWishlisted) {
+      await this.executeMoveToBag(product.id, size);
+    } else {
+      await this.executeAddToCart(product.id, size);
+    }
+  },
+
+  checkPincode() {
+    const val = document.getElementById('pdpPincodeInput')?.value || '122002';
+    const statusEl = document.getElementById('pdpPincodeStatus');
+    if (statusEl) statusEl.innerText = `Delivers to ${val} ✔`;
   },
 
   async confirmSizeMoveToBag() {

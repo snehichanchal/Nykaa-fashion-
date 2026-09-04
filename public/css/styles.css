@@ -755,9 +755,14 @@ button {
   stroke-width: 2;
 }
 
+.wishlist-heart-btn.active {
+  background: var(--primary-pink);
+  box-shadow: 0 3px 10px rgba(232, 0, 113, 0.4);
+}
+
 .wishlist-heart-btn.active svg {
-  fill: var(--primary-pink);
-  stroke: var(--primary-pink);
+  fill: #FFFFFF;
+  stroke: #FFFFFF;
 }
 
 .badge-tag {
@@ -1828,4 +1833,295 @@ button {
 
 .size-modal-submit-btn:hover {
   background: #000000;
+}
+
+/* PRODUCT DETAIL MODAL (PDP - Nykaa Reference Screenshot) */
+.pdp-modal-content {
+  background: #FFFFFF;
+  width: 1020px;
+  max-width: 95vw;
+  max-height: 90vh;
+  border-radius: 12px;
+  overflow-y: auto;
+  position: relative;
+  padding: 32px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+.pdp-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 36px;
+}
+
+.pdp-gallery-wrap {
+  display: flex;
+  gap: 16px;
+}
+
+.pdp-thumbs-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 75px;
+}
+
+.pdp-thumb-img {
+  width: 75px;
+  height: 98px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #E5E7EB;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pdp-thumb-img.active,
+.pdp-thumb-img:hover {
+  border-color: var(--primary-pink);
+  box-shadow: 0 0 0 1px var(--primary-pink);
+}
+
+.pdp-main-img-wrap {
+  flex: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #F3F4F6;
+  aspect-ratio: 3/4;
+}
+
+.pdp-main-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pdp-breadcrumbs {
+  font-size: 11px;
+  color: #6B7280;
+  margin-bottom: 8px;
+}
+
+.pdp-badges {
+  font-size: 11px;
+  font-weight: 800;
+  color: #0284C7;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.pdp-brand {
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.pdp-title {
+  font-size: 14px;
+  color: #4B5563;
+  font-weight: 400;
+  margin-bottom: 16px;
+}
+
+.pdp-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.pdp-price {
+  font-size: 24px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.pdp-discount {
+  font-size: 15px;
+  font-weight: 700;
+  color: #16A34A;
+}
+
+.pdp-mrp-subtext {
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.pdp-size-section {
+  margin-bottom: 20px;
+}
+
+.pdp-size-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 10px;
+}
+
+.size-guide-link {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary-pink);
+  cursor: pointer;
+}
+
+.pdp-size-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pdp-size-pill {
+  min-width: 44px;
+  height: 38px;
+  border-radius: 6px;
+  border: 1px solid #D1D5DB;
+  background: #FFFFFF;
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0 12px;
+  transition: all 0.15s ease;
+}
+
+.pdp-size-pill:hover,
+.pdp-size-pill.selected {
+  border-color: var(--primary-pink);
+  color: var(--primary-pink);
+  background: var(--pink-light-bg);
+}
+
+.pdp-model-box {
+  background: #F9FAFB;
+  border: 1px solid #F3F4F6;
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.model-icon {
+  font-size: 20px;
+}
+
+.model-head {
+  font-size: 10px;
+  font-weight: 800;
+  color: #6B7280;
+  letter-spacing: 0.5px;
+}
+
+.model-desc {
+  font-size: 12px;
+  color: #374151;
+  font-weight: 600;
+}
+
+.pdp-actions-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.pdp-wishlist-btn {
+  height: 48px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #FFFFFF;
+  border: 1px solid #D1D5DB;
+  color: #374151;
+}
+
+.pdp-wishlist-btn.wishlisted {
+  border-color: var(--primary-pink);
+  color: var(--primary-pink);
+  background: #FFF5F8;
+}
+
+.pdp-add-bag-btn {
+  height: 48px;
+  border-radius: 6px;
+  background: #001325;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.pdp-add-bag-btn:hover {
+  background: #092440;
+}
+
+.pdp-delivery-section {
+  border-top: 1px solid #F3F4F6;
+  padding-top: 20px;
+}
+
+.delivery-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 2px;
+}
+
+.delivery-subtext {
+  font-size: 11px;
+  color: #6B7280;
+  margin-bottom: 12px;
+}
+
+.pincode-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  padding: 8px 14px;
+  margin-bottom: 6px;
+}
+
+.pincode-input {
+  border: none;
+  background: transparent;
+  font-weight: 700;
+  font-size: 13px;
+  outline: none;
+  width: 120px;
+}
+
+.pin-edit-btn {
+  background: none;
+  border: none;
+  color: var(--primary-pink);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.pincode-status-text {
+  font-size: 11px;
+  color: #16A34A;
+  font-weight: 600;
 }

@@ -548,6 +548,80 @@
     </div>
   </div>
 
+  <!-- PRODUCT DETAIL MODAL (Nykaa Reference Screenshot) -->
+  <div class="modal-overlay" id="productDetailModal" style="z-index: 10070;">
+    <div class="pdp-modal-content">
+      <button class="close-modal-x" onclick="app.closeProductDetailModal()">✕</button>
+
+      <div class="pdp-grid">
+        <!-- Left: Image Gallery -->
+        <div class="pdp-gallery-wrap">
+          <div class="pdp-thumbs-col" id="pdpThumbsCol">
+            <!-- Thumbnail images rendered via app.js -->
+          </div>
+          <div class="pdp-main-img-wrap">
+            <img id="pdpMainImg" src="" alt="Product Image">
+          </div>
+        </div>
+
+        <!-- Right: Product Details -->
+        <div class="pdp-info-wrap">
+          <div class="pdp-breadcrumbs" id="pdpBreadcrumbs">Home > Women > Westernwear > Dresses</div>
+          <div class="pdp-badges" id="pdpBadges">EXCLUSIVE | LATEST STYLE</div>
+
+          <h1 class="pdp-brand" id="pdpBrand">Brand Name</h1>
+          <h2 class="pdp-title" id="pdpTitle">Product Title</h2>
+
+          <div class="pdp-price-row">
+            <span class="pdp-price" id="pdpPrice">₹0</span>
+            <span class="pdp-discount" id="pdpDiscount">0% Off</span>
+            <span class="pdp-mrp-subtext" id="pdpMrp">MRP ₹0 Inclusive of all taxes</span>
+          </div>
+
+          <div class="pdp-size-section">
+            <div class="pdp-size-header">
+              <span>Select Size</span>
+              <span class="size-guide-link">Size Guide</span>
+            </div>
+            <div class="pdp-size-pills" id="pdpSizePills">
+              <!-- Rendered via app.js -->
+            </div>
+          </div>
+
+          <div class="pdp-model-box">
+            <span class="model-icon">👗</span>
+            <div>
+              <div class="model-head">MODEL DETAILS</div>
+              <div class="model-desc" id="pdpModelDesc">Model Height is 5'8" and is Wearing Size S.</div>
+            </div>
+          </div>
+
+          <div class="pdp-actions-row">
+            <button class="pdp-wishlist-btn" id="pdpWishlistBtn" onclick="app.togglePdpWishlist()">
+              <!-- Dynamic Wishlist State -->
+            </button>
+            <button class="pdp-add-bag-btn" onclick="app.addPdpToBag()">
+              Add to Bag
+            </button>
+          </div>
+
+          <div class="pdp-delivery-section">
+            <div class="delivery-title">Select Delivery Location</div>
+            <div class="delivery-subtext">Enter the pincode of your area to check product availability and delivery options</div>
+            <div class="pincode-box">
+              <div class="pincode-left">
+                <span class="pin-label" style="font-size: 11px; color: #666; display: block;">Enter Pincode</span>
+                <input type="text" id="pdpPincodeInput" value="122002" class="pincode-input" maxlength="6">
+              </div>
+              <button class="pin-edit-btn" onclick="app.checkPincode()">Check</button>
+            </div>
+            <div class="pincode-status-text" id="pdpPincodeStatus">Delivers to Gurgaon - 122002 ✔</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/app.js"></script>
 </body>
 </html>
