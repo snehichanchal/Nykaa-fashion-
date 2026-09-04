@@ -1,0 +1,11 @@
+{
+  "name": "nykaa-e2e",
+  "private": true,
+  "description": "E2E suite. Kept isolated from the root package.json so puppeteer never lands in the production dependency tree or slows a deploy build.",
+  "scripts": {
+    "test": "node run.js"
+  },
+  "devDependencies": {
+    "puppeteer": "^25.10.0"
+  }
+}

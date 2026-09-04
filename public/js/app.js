@@ -1004,6 +1004,22 @@ const app = {
     }
   },
 
+  async updateCartSize(cartId, size) {
+    try {
+      const res = await fetch(`/api/cart/${cartId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ size })
+      });
+      const data = await res.json();
+      if (data.success) {
+        await this.fetchCart();
+      }
+    } catch (err) {
+      console.error('Error updating cart size:', err);
+    }
+  },
+
   async updateCartQty(cartId, qty) {
     try {
       const res = await fetch(`/api/cart/${cartId}`, {
@@ -1132,7 +1148,7 @@ const app = {
             <div class="cart-item-title">${item.title}</div>
             <div class="cart-item-options">
               <label class="select-label">Size:
-                <select class="select-box" onchange="app.updateCartQty(${item.cart_id}, ${item.quantity})">
+                <select class="select-box" onchange="app.updateCartSize(${item.cart_id}, this.value)">
                   ${(item.sizes || ['S', 'M', 'L']).map(s => `<option value="${s}" ${s === item.selected_size ? 'selected' : ''}>${s}</option>`).join('')}
                 </select>
               </label>
