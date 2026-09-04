@@ -1679,3 +1679,153 @@ button {
 .remove-modal-btn-secondary:hover {
   color: #E80071;
 }
+
+/* --- Size Selection Modal (Nykaa Reference Screenshot) --- */
+.size-modal-content {
+  background: #FFFFFF;
+  width: 400px;
+  max-width: 92%;
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: modalPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.close-modal-x {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #9CA3AF;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.close-modal-x:hover {
+  color: #111827;
+}
+
+.size-modal-header {
+  display: flex;
+  gap: 14px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.size-modal-img {
+  width: 75px;
+  height: 95px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #F9FAFB;
+}
+
+.size-modal-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.size-modal-brand {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.size-modal-title {
+  font-size: 12px;
+  color: #4B5563;
+  margin: 3px 0 6px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.size-modal-price-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.size-modal-price {
+  font-size: 14px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.size-modal-mrp {
+  font-size: 12px;
+  color: #9CA3AF;
+  text-decoration: line-through;
+}
+
+.size-modal-discount {
+  font-size: 12px;
+  font-weight: 700;
+  color: #10B981;
+}
+
+.size-modal-body {
+  padding: 18px 0 12px 0;
+}
+
+.select-size-subhead {
+  font-size: 13px;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+.size-modal-pills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.size-modal-pill {
+  border: 1px solid #D1D5DB;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+  background: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.size-modal-pill:hover {
+  border-color: #E80071;
+  color: #E80071;
+  background: #FFF5F8;
+}
+
+.size-modal-pill.selected {
+  border-color: #E80071;
+  background: #FFF5F8;
+  color: #E80071;
+  box-shadow: 0 0 0 1px #E80071;
+}
+
+.size-modal-footer {
+  margin-top: 12px;
+}
+
+.size-modal-submit-btn {
+  width: 100%;
+  background: #0F172A;
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 12px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.size-modal-submit-btn:hover {
+  background: #000000;
+}

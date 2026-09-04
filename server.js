@@ -332,7 +332,7 @@ app.delete('/api/cart/:cartId', (req, res) => {
 // Move from Wishlist to Bag
 app.post('/api/wishlist/move-to-bag', (req, res) => {
   try {
-    const { productId } = req.body;
+    const { productId, size } = req.body;
     const db = getDb();
 
     const prod = db.prepare('SELECT * FROM products WHERE id = ?').get(productId);
@@ -342,11 +342,11 @@ app.post('/api/wishlist/move-to-bag', (req, res) => {
     }
 
     const sizes = JSON.parse(prod.sizes_json || '[]');
-    const defaultSize = sizes[0] || 'One Size';
+    const chosenSize = size || (sizes.length > 0 ? sizes[0] : 'One Size');
 
     // Add to cart
     db.prepare('INSERT INTO cart_items (session_id, product_id, size, quantity) VALUES (?, ?, ?, 1)')
-      .run('default_user', productId, defaultSize);
+      .run('default_user', productId, chosenSize);
 
     // Remove from wishlist
     db.prepare('DELETE FROM wishlist_items WHERE session_id = ? AND product_id = ?')
@@ -427,6 +427,9 @@ app.post('/api/checkout', (req, res) => {
       }
     });
   } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 // -------------------------------------------------------------
 // USER AUTHENTICATION & ACCOUNT ENDPOINTS
 // -------------------------------------------------------------

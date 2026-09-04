@@ -43,6 +43,17 @@ All test cases have been validated using automated test scripts, PyTorch thread 
 
 ---
 
+### 2.4 Cart & Wishlist Stock/Size Handling Edge Cases
+
+| Test Case ID | Scenario / Input | Expected Behavior | Actual System Output | Status |
+| :--- | :--- | :--- | :--- | :---: |
+| **TC-CART-01** | Wishlist item out-of-stock (`stock_qty <= 0`) matching cart category | Omit out-of-stock wishlisted items from *"From Your Wishlist"* recommendations in cart drawer. | Out-of-stock Cider jumpsuit/dress (`stock_qty: 0`) is strictly filtered out; only in-stock items are displayed. | **PASSED ✅** |
+| **TC-CART-02** | Multiple matching in-stock wishlist items | Display all in-stock wishlisted items matching cart categories/brands without arbitrary count caps. | Renders all relevant matching in-stock items with *"✨ Matches Cart Category"* badge. | **PASSED ✅** |
+| **TC-CART-03** | Move wishlisted apparel/footwear requiring size selection to cart | Display interactive Size Selection Modal matching Nykaa design specs before adding to cart. | Modal opens with thumbnail, brand, title, price, discount, and interactive size pills (`S`, `M`, `L`, `XL`, `UK 6`, etc.). | **PASSED ✅** |
+| **TC-CART-04** | Confirm size selection from modal | Move product from wishlist to cart with selected size stored in `cart_items`. | `POST /api/wishlist/move-to-bag` receives chosen size (e.g. `'L'`), inserts into SQLite, and clears wishlist item. | **PASSED ✅** |
+
+---
+
 ## 3. Summary Verification Checklist
 
 ```
@@ -50,4 +61,8 @@ All test cases have been validated using automated test scripts, PyTorch thread 
 [✓] PyTorch Thread Lock & Zero SegFault Validation (torch.set_num_threads(1))
 [✓] Streamlit Dataframe Deprecation Fallback (width="stretch")
 [✓] Multi-LLM Provider Integration (Gemini, ChatGPT, Claude, DeepSeek)
+[✓] Out-of-Stock Wishlist Exclusion in Cart Drawer (stock_qty <= 0 filtered)
+[✓] Comprehensive In-Stock Wishlist Recommendations Rendering
+[✓] Interactive Size Selection Modal for Wishlist-to-Bag Transfer
 ```
+

@@ -197,7 +197,7 @@ scrapedProducts.forEach(p => {
     isBestseller,
     isExclusive,
     isLuxe,
-    Math.floor(Math.random() * 40) + 10,
+    p.stock_qty !== undefined ? p.stock_qty : Math.floor(Math.random() * 40) + 10,
     p.url || null
   );
 });

@@ -661,6 +661,27 @@ const app = {
   },
 
   async addToBag(productId, size = null) {
+    let product = this.state.products.find(p => p.id === productId) ||
+                  this.state.wishlist.find(p => p.id === productId);
+
+    if (!product) {
+      await this.executeAddToCart(productId, 'One Size');
+      return;
+    }
+
+    const sizes = product.sizes || [];
+    const requiresSize = sizes.length > 0 && !(sizes.length === 1 && sizes[0] === 'One Size');
+
+    if (requiresSize && !size) {
+      this.promptSizeSelectionModal(product);
+      return;
+    }
+
+    const chosenSize = size || (sizes.length > 0 ? sizes[0] : 'One Size');
+    await this.executeAddToCart(productId, chosenSize);
+  },
+
+  async executeAddToCart(productId, size) {
     try {
       const res = await fetch('/api/cart', {
         method: 'POST',
@@ -677,12 +698,99 @@ const app = {
     }
   },
 
+  promptSizeSelectionModal(product) {
+    this.state.pendingSizeProduct = product;
+    const sizes = product.sizes || ['S', 'M', 'L'];
+    this.state.selectedModalSize = sizes[0];
+
+    const isWishlisted = this.state.wishlist.some(w => w.id === product.id);
+    const submitBtn = document.getElementById('sizeModalSubmitBtn');
+    if (submitBtn) {
+      submitBtn.innerText = isWishlisted ? 'Move To Bag' : 'Add To Bag';
+    }
+
+    const imgEl = document.getElementById('sizeModalImg');
+    if (imgEl) imgEl.src = (product.images && product.images[0]) || product.image || '';
+
+    const brandEl = document.getElementById('sizeModalBrand');
+    if (brandEl) brandEl.innerText = product.brand_name || '';
+
+    const titleEl = document.getElementById('sizeModalTitle');
+    if (titleEl) titleEl.innerText = product.title || '';
+
+    const priceEl = document.getElementById('sizeModalPrice');
+    if (priceEl) priceEl.innerText = `₹${(product.price || 0).toLocaleString()}`;
+
+    const mrpEl = document.getElementById('sizeModalMrp');
+    if (mrpEl) mrpEl.innerText = `₹${(product.mrp || 0).toLocaleString()}`;
+
+    const discountEl = document.getElementById('sizeModalDiscount');
+    if (discountEl) discountEl.innerText = `${product.discount_percent || 0}% off`;
+
+    const pillsGrid = document.getElementById('sizeModalPillsGrid');
+    if (pillsGrid) {
+      pillsGrid.innerHTML = sizes.map((s, idx) => `
+        <button class="size-modal-pill ${idx === 0 ? 'selected' : ''}" onclick="app.selectModalSize('${s}', this)">${s}</button>
+      `).join('');
+    }
+
+    const modal = document.getElementById('sizeSelectionModal');
+    if (modal) modal.classList.add('open');
+  },
+
+  selectModalSize(size, btnEl) {
+    this.state.selectedModalSize = size;
+    document.querySelectorAll('.size-modal-pill').forEach(b => b.classList.remove('selected'));
+    if (btnEl) btnEl.classList.add('selected');
+  },
+
+  closeSizeModal() {
+    this.state.pendingSizeProduct = null;
+    const modal = document.getElementById('sizeSelectionModal');
+    if (modal) modal.classList.remove('open');
+  },
+
+  async confirmSizeMoveToBag() {
+    const product = this.state.pendingSizeProduct;
+    const size = this.state.selectedModalSize || 'S';
+    if (!product) return;
+
+    this.closeSizeModal();
+
+    const isWishlisted = this.state.wishlist.some(w => w.id === product.id);
+    if (isWishlisted) {
+      await this.executeMoveToBag(product.id, size);
+    } else {
+      await this.executeAddToCart(product.id, size);
+    }
+  },
+
   async moveToBag(productId) {
+    let product = this.state.wishlist.find(p => p.id === productId) ||
+                  this.state.products.find(p => p.id === productId);
+
+    if (!product) {
+      await this.executeMoveToBag(productId, 'One Size');
+      return;
+    }
+
+    const sizes = product.sizes || [];
+    const requiresSize = sizes.length > 0 && !(sizes.length === 1 && sizes[0] === 'One Size');
+
+    if (requiresSize) {
+      // Prompt size selection modal matching reference screenshot
+      this.promptSizeSelectionModal(product);
+    } else {
+      await this.executeMoveToBag(productId, 'One Size');
+    }
+  },
+
+  async executeMoveToBag(productId, size) {
     try {
       const res = await fetch('/api/wishlist/move-to-bag', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId })
+        body: JSON.stringify({ productId, size })
       });
       const data = await res.json();
       if (data.success) {
@@ -902,20 +1010,32 @@ const app = {
     }
 
     // Wishlist Recommendations Section ("From Your Wishlist ❤️")
+    // Filter out items already in cart AND filter out items that are OUT OF STOCK (stock_qty <= 0)
     const cartProductIds = new Set(this.state.cart.map(c => c.product_id));
-    const availableWishlist = this.state.wishlist.filter(w => !cartProductIds.has(w.id));
+    const inStockWishlist = this.state.wishlist.filter(w => {
+      const notInCart = !cartProductIds.has(w.id);
+      const isInStock = (w.stock_qty === undefined || w.stock_qty === null || w.stock_qty > 0);
+      return notInCart && isInStock;
+    });
 
-    if (availableWishlist.length > 0) {
+    if (inStockWishlist.length > 0) {
       const cartCategories = new Set(this.state.cart.map(c => c.category_slug));
       const cartBrands = new Set(this.state.cart.map(c => c.brand_name));
+
+      // Sort so similar category/brand items appear first, showing ALL relevant items
+      const relevantWishlist = [...inStockWishlist].sort((a, b) => {
+        const aScore = cartCategories.has(a.category_slug) ? 2 : (cartBrands.has(a.brand_name) ? 1 : 0);
+        const bScore = cartCategories.has(b.category_slug) ? 2 : (cartBrands.has(b.brand_name) ? 1 : 0);
+        return bScore - aScore;
+      });
 
       html += `
         <div class="cart-wishlist-suggestions">
           <div class="wishlist-section-title">
             <span class="heart-icon">❤️</span>
-            <span>From Your Wishlist (${availableWishlist.length})</span>
+            <span>From Your Wishlist (${relevantWishlist.length})</span>
           </div>
-          ${availableWishlist.map(item => {
+          ${relevantWishlist.map(item => {
             const isCategoryMatch = cartCategories.has(item.category_slug);
             const isBrandMatch = cartBrands.has(item.brand_name);
             let matchBadge = '';

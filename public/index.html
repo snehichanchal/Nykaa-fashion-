@@ -375,6 +375,37 @@
     </div>
   </div>
 
+  <!-- SIZE SELECTION MODAL (Nykaa Reference Screenshot) -->
+  <div class="modal-overlay" id="sizeSelectionModal" style="z-index: 10060;">
+    <div class="size-modal-content">
+      <button class="close-modal-x" onclick="app.closeSizeModal()">✕</button>
+      
+      <div class="size-modal-header">
+        <img id="sizeModalImg" src="" class="size-modal-img" alt="Product Image">
+        <div class="size-modal-info">
+          <div class="size-modal-brand" id="sizeModalBrand">Brand</div>
+          <div class="size-modal-title" id="sizeModalTitle">Product Title</div>
+          <div class="size-modal-price-row">
+            <span class="size-modal-price" id="sizeModalPrice">₹0</span>
+            <span class="size-modal-mrp" id="sizeModalMrp">₹0</span>
+            <span class="size-modal-discount" id="sizeModalDiscount">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="size-modal-body">
+        <div class="select-size-subhead">Select Size</div>
+        <div class="size-modal-pills-grid" id="sizeModalPillsGrid">
+          <!-- Size pills rendered dynamically via app.js -->
+        </div>
+      </div>
+
+      <div class="size-modal-footer">
+        <button class="size-modal-submit-btn" id="sizeModalSubmitBtn" onclick="app.confirmSizeMoveToBag()">Move To Bag</button>
+      </div>
+    </div>
+  </div>
+
   <!-- CHECKOUT & PAYMENT MODAL (Screenshot 7) -->
   <div class="modal-overlay" id="checkoutModal">
     <div class="checkout-modal">

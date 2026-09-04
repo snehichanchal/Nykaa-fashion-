@@ -1153,5 +1153,51 @@
     "reviewsCount": 130,
     "badge": "EXCLUSIVE",
     "url": "https://www.nykaafashion.com/ray-ban-aviator/p/1813531"
+  },
+  {
+    "title": "Cider High Neck Solid Cut Out Patched Wide Leg Jumpsuit",
+    "brand": "Cider",
+    "category": "westernwear",
+    "gender": "Women",
+    "price": 2964,
+    "mrp": 3499,
+    "discount": 15,
+    "image": "https://adn-static1.nykaa.com/nykdesignstudio-images/pub/media/catalog/product/0/d/0d39a98Floe-371_1.jpg?rnd=20200526195200&tr=w-800",
+    "rating": 4.5,
+    "reviewsCount": 24,
+    "badge": "SOLD OUT",
+    "stock_qty": 0,
+    "url": "https://www.nykaafashion.com/cider-high-neck-solid-cut-out-patched-wide-leg-jumpsuit/p/17910879"
+  },
+  {
+    "title": "Cider Pink Boat Neck Solid Long Sleeve Tee",
+    "brand": "Cider",
+    "category": "westernwear",
+    "gender": "Women",
+    "price": 1480,
+    "mrp": 1999,
+    "discount": 26,
+    "image": "https://adn-static1.nykaa.com/nykdesignstudio-images/pub/media/catalog/product/1/4/1403119TC0608CFRU_1.jpg?rnd=20200526195200&tr=w-800",
+    "rating": 4.3,
+    "reviewsCount": 18,
+    "badge": "SOLD OUT",
+    "stock_qty": 0,
+    "url": "https://www.nykaafashion.com/cider-pink-boat-neck-solid-long-sleeve-tee/p/17210019"
+  },
+  {
+    "title": "Cider Lace Tube Tie Back Dress",
+    "brand": "Cider",
+    "category": "westernwear",
+    "gender": "Women",
+    "price": 5040,
+    "mrp": 5999,
+    "discount": 16,
+    "image": "https://adn-static1.nykaa.com/nykdesignstudio-images/pub/media/catalog/product/b/e/beeb725Dress246BrownBrown_1.jpg?rnd=20200526195200&tr=w-800",
+    "rating": 4.6,
+    "reviewsCount": 35,
+    "badge": "SOLD OUT",
+    "stock_qty": 0,
+    "url": "https://www.nykaafashion.com/cider-lace-tube-tie-back-dress/p/25724268"
   }
 ]
+
