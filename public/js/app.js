@@ -1000,6 +1000,13 @@ const app = {
 
     // 2. Remove item from cart
     await this.removeCartItem(item.cart_id);
+
+    // 3. Re-fetch wishlist & cart, update UI, and display Wishlist Modal
+    await this.fetchWishlist();
+    await this.fetchCart();
+    this.renderWishlistGrid();
+    this.renderProducts();
+    this.showWishlistModal();
   },
 
   async confirmRemoveCartItem() {
