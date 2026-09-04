@@ -2281,6 +2281,64 @@ body.modal-open {
   .nav-categories .nav-item {
     white-space: nowrap;
   }
+
+  /* Touch targets: the desktop header packs 31-33px controls, below the 44px
+     minimum a fingertip can reliably hit. Grow them on touch-sized screens. */
+  .header-right .icon-action-btn {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-categories .nav-item {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+
+/* ---------------------------------------------------------------------------
+   Phone/tablet content density.
+
+   .store-layout carries 40px of desktop side padding and every
+   .homepage-block-wrapper adds another 20px, so on a 390px phone 120px (31% of
+   the screen) was chrome and product cards rendered 126px wide — too narrow to
+   read the title or price. Reclaim the gutters as the viewport shrinks.
+--------------------------------------------------------------------------- */
+@media (max-width: 820px) {
+  .store-layout {
+    padding: 20px 20px;
+    gap: 20px;
+  }
+  .homepage-block-wrapper {
+    padding: 16px 14px;
+    margin-bottom: 20px;
+  }
+  .homepage-block-grid {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .store-layout {
+    padding: 16px 12px;
+    gap: 16px;
+  }
+  .homepage-block-wrapper {
+    padding: 14px 10px;
+    border-radius: 10px;
+  }
+  .homepage-block-grid,
+  .product-cards-grid {
+    gap: 10px;
+  }
+  .homepage-block-title {
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 480px) {
