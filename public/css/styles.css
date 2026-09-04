@@ -765,6 +765,35 @@ button {
   stroke: #FFFFFF;
 }
 
+/* Subtle Wishlist Cross Icon in Modal (Replaces loud red circle) */
+.wishlist-remove-subtle-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  color: #6B7280;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 5;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.wishlist-remove-subtle-btn:hover {
+  background: #FFFFFF;
+  color: #111827;
+  border-color: #9CA3AF;
+  transform: scale(1.08);
+}
+
 .badge-tag {
   position: absolute;
   top: 10px;
@@ -925,9 +954,9 @@ button {
 
 .wishlist-suggest-price {
   font-size: 12px;
-  font-weight: 700;
-  color: var(--primary-pink);
-  margin-top: 2px;
+  font-weight: 600;
+  color: #374151;
+  margin-top: 3px;
 }
 
 .wishlist-move-btn {
@@ -1313,21 +1342,31 @@ button {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
 }
 
-/* --- Checkout Modal / Page (Screenshot 7) --- */
+/* --- Modal Body Scroll Lock & Modal Overlays --- */
+body.modal-open {
+  overflow: hidden !important;
+  overscroll-behavior: contain !important;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   background: rgba(0, 0, 0, 0.6);
-  z-index: 300;
+  backdrop-filter: blur(3px);
+  z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.3s ease;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 24px 16px;
+  box-sizing: border-box;
 }
 .modal-overlay.open {
   opacity: 1;
@@ -1338,9 +1377,11 @@ button {
   background: #FFFFFF;
   width: 900px;
   max-width: 95vw;
-  max-height: 90vh;
+  max-height: 85vh;
   border-radius: 12px;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   box-shadow: var(--box-shadow-lg);
   display: flex;
   flex-direction: column;
@@ -1840,9 +1881,11 @@ button {
   background: #FFFFFF;
   width: 1020px;
   max-width: 95vw;
-  max-height: 90vh;
+  max-height: 85vh;
   border-radius: 12px;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   position: relative;
   padding: 32px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);

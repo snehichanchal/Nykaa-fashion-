@@ -203,6 +203,19 @@ app.post('/api/wishlist/toggle', (req, res) => {
   }
 });
 
+app.post('/api/wishlist/add', (req, res) => {
+  try {
+    const { productId } = req.body;
+    const db = getDb();
+    db.prepare('INSERT OR IGNORE INTO wishlist_items (session_id, product_id) VALUES (?, ?)')
+      .run('default_user', productId);
+    db.close();
+    res.json({ success: true, message: 'Added to wishlist' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.delete('/api/wishlist/:productId', (req, res) => {
   try {
     const db = getDb();
@@ -238,6 +251,7 @@ app.get('/api/cart', (req, res) => {
 
       return {
         ...item,
+        product_id: item.product_id || item.id,
         colors: JSON.parse(item.colors_json || '[]'),
         sizes: JSON.parse(item.sizes_json || '[]'),
         images: JSON.parse(item.images_json || '[]')

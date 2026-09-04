@@ -25,8 +25,8 @@ const app = {
   async init() {
     await this.fetchCategories();
     await this.fetchBrands();
-    await this.fetchProducts();
     await this.fetchWishlist();
+    await this.fetchProducts();
     await this.fetchCart();
     this.renderCategoryAvatars();
     this.renderCategoryFilterList();
@@ -98,6 +98,10 @@ const app = {
       if (data.success) {
         this.state.wishlist = data.data;
         this.updateHeaderBadges();
+        this.renderProducts();
+        if (this.state.activeDetailProduct) {
+          this.renderPdpWishlistButton();
+        }
       }
     } catch (err) {
       console.error('Failed to fetch wishlist:', err);
@@ -124,18 +128,35 @@ const app = {
     const cartCount = this.state.cartSummary ? this.state.cartSummary.itemCount : 0;
 
     const wishlistDot = document.getElementById('wishlistDot');
+    const wishlistBadge = document.getElementById('wishlistCount');
     const cartBadge = document.getElementById('cartCount');
 
-    // Rule 1 & 3: Highlight wishlist icon with dot if wishlist has items
-    if (wishlistDot) {
-      if (wishlistCount > 0) {
-        wishlistDot.style.display = 'block';
-      } else {
-        wishlistDot.style.display = 'none';
+    // Wishlist indicator logic:
+    // If cart is empty (cartCount === 0) & wishlist has items -> show number as superscript badge
+    // If cart has any item (cartCount > 0) & wishlist has items -> highlight wishlist icon with red dot
+    // If wishlist is empty (wishlistCount === 0) -> hide both dot and superscript badge
+    if (cartCount === 0) {
+      if (wishlistDot) wishlistDot.style.display = 'none';
+      if (wishlistBadge) {
+        if (wishlistCount > 0) {
+          wishlistBadge.innerText = wishlistCount;
+          wishlistBadge.style.display = 'flex';
+        } else {
+          wishlistBadge.style.display = 'none';
+        }
+      }
+    } else {
+      if (wishlistBadge) wishlistBadge.style.display = 'none';
+      if (wishlistDot) {
+        if (wishlistCount > 0) {
+          wishlistDot.style.display = 'block';
+        } else {
+          wishlistDot.style.display = 'none';
+        }
       }
     }
 
-    // Rule 2 & 3: Show superscript above cart icon if cart has items
+    // Cart badge logic:
     if (cartBadge) {
       if (cartCount > 0) {
         cartBadge.innerText = cartCount;
@@ -190,10 +211,12 @@ const app = {
     document.getElementById('authStep1').style.display = 'block';
     document.getElementById('authStep2').style.display = 'none';
     document.getElementById('authModal').classList.add('open');
+    this.syncBodyScrollLock();
   },
 
   closeAuthModal() {
     document.getElementById('authModal').classList.remove('open');
+    this.syncBodyScrollLock();
   },
 
   async submitAuthStep1() {
@@ -272,11 +295,13 @@ const app = {
     }
 
     document.getElementById('ordersModal').classList.add('open');
+    this.syncBodyScrollLock();
     await this.fetchUserOrders();
   },
 
   closeOrdersModal() {
     document.getElementById('ordersModal').classList.remove('open');
+    this.syncBodyScrollLock();
   },
 
   async fetchUserOrders() {
@@ -612,31 +637,15 @@ const app = {
       });
 
       if (categoryWishlistMatches.length > 0) {
-        html += `
-          <div style="grid-column: 1 / -1; margin-bottom: 4px;">
-            <div style="font-size: 15px; font-weight: 800; color: #111827; display: flex; align-items: center; gap: 8px; background: #FFF5F8; padding: 12px 16px; border-radius: 8px; border: 1px solid #FBCFE8;">
-              <span>❤️</span>
-              <span>From Your Wishlist (Matching Category for "${this.state.search}") (${categoryWishlistMatches.length})</span>
-              <span style="margin-left: auto; font-size: 11px; color: #E80071; font-weight: 700; background: #FFFFFF; padding: 4px 10px; border-radius: 12px; border: 1px solid #FBCFE8;">Category Wishlist Match</span>
-            </div>
-          </div>
-        `;
-        html += categoryWishlistMatches.map(p => renderCardHtml(p, true)).join('');
+        const matchedWishlistIds = new Set(categoryWishlistMatches.map(w => w.id));
+        const otherProducts = this.state.products.filter(p => !matchedWishlistIds.has(p.id));
 
-        html += `
-          <div style="grid-column: 1 / -1; margin-top: 24px; margin-bottom: 4px;">
-            <div style="font-size: 14px; font-weight: 700; color: #374151; display: flex; align-items: center; gap: 8px; padding-bottom: 8px; border-bottom: 1px solid #E5E7EB;">
-              <span>🛍️ All Search Results (${this.state.products.length})</span>
-            </div>
-          </div>
-        `;
-        html += this.state.products.map(p => renderCardHtml(p, false)).join('');
+        html += categoryWishlistMatches.map(p => renderCardHtml(p, true)).join('');
+        html += otherProducts.map(p => renderCardHtml(p, false)).join('');
       } else {
-        // Wishlist has no similar products in that category -> DO NOT SHOW WISHLISTED BLOCK
         html += this.state.products.map(p => renderCardHtml(p, false)).join('');
       }
     } else {
-      // Normal browsing homepage OR no search query -> DO NOT SHOW WISHLISTED BLOCK
       html += this.state.products.map(p => renderCardHtml(p, false)).join('');
     }
 
@@ -644,6 +653,57 @@ const app = {
   },
 
   async toggleWishlist(productId) {
+    const isWishlisted = this.state.wishlist.some(w => w.id === productId);
+    if (isWishlisted) {
+      this.promptRemoveWishlistItem(productId);
+    } else {
+      await this.executeToggleWishlist(productId);
+    }
+  },
+
+  promptRemoveWishlistItem(productId) {
+    const product = this.state.wishlist.find(p => p.id === productId) ||
+                    this.state.products.find(p => p.id === productId);
+
+    if (!product) return;
+
+    this.state.pendingRemoveWishlistId = productId;
+
+    const imgEl = document.getElementById('removeWishlistModalItemImg');
+    if (imgEl) {
+      imgEl.src = (product.images && product.images[0]) || product.image || '';
+    }
+
+    const titleEl = document.getElementById('removeWishlistModalItemTitle');
+    if (titleEl) {
+      titleEl.innerText = `Are you sure you want to remove "${product.title}" from your Wishlist?`;
+    }
+
+    const modal = document.getElementById('removeWishlistModal');
+    if (modal) {
+      modal.classList.add('open');
+      this.syncBodyScrollLock();
+    }
+  },
+
+  closeRemoveWishlistModal() {
+    this.state.pendingRemoveWishlistId = null;
+    const modal = document.getElementById('removeWishlistModal');
+    if (modal) {
+      modal.classList.remove('open');
+      this.syncBodyScrollLock();
+    }
+  },
+
+  async confirmRemoveWishlistItem() {
+    const productId = this.state.pendingRemoveWishlistId;
+    if (!productId) return;
+
+    this.closeRemoveWishlistModal();
+    await this.executeToggleWishlist(productId);
+  },
+
+  async executeToggleWishlist(productId) {
     try {
       const res = await fetch('/api/wishlist/toggle', {
         method: 'POST',
@@ -653,7 +713,7 @@ const app = {
       const data = await res.json();
       if (data.success) {
         await this.fetchWishlist();
-        this.renderProducts();
+        this.renderWishlistGrid();
       }
     } catch (err) {
       console.error('Error toggling wishlist:', err);
@@ -735,7 +795,10 @@ const app = {
     }
 
     const modal = document.getElementById('sizeSelectionModal');
-    if (modal) modal.classList.add('open');
+    if (modal) {
+      modal.classList.add('open');
+      this.syncBodyScrollLock();
+    }
   },
 
   selectModalSize(size, btnEl) {
@@ -748,6 +811,7 @@ const app = {
     this.state.pendingSizeProduct = null;
     const modal = document.getElementById('sizeSelectionModal');
     if (modal) modal.classList.remove('open');
+    this.syncBodyScrollLock();
   },
 
   openProductDetailModal(productId) {
@@ -815,7 +879,10 @@ const app = {
 
     // Show modal
     const modal = document.getElementById('productDetailModal');
-    if (modal) modal.classList.add('open');
+    if (modal) {
+      modal.classList.add('open');
+      this.syncBodyScrollLock();
+    }
   },
 
   renderPdpWishlistButton() {
@@ -852,6 +919,7 @@ const app = {
     this.state.activeDetailProduct = null;
     const modal = document.getElementById('productDetailModal');
     if (modal) modal.classList.remove('open');
+    this.syncBodyScrollLock();
   },
 
   async togglePdpWishlist() {
@@ -979,34 +1047,44 @@ const app = {
     }
 
     document.getElementById('removeCartModal').classList.add('open');
+    this.syncBodyScrollLock();
   },
 
   closeRemoveCartModal() {
     this.state.pendingRemoveItem = null;
     document.getElementById('removeCartModal').classList.remove('open');
+    this.syncBodyScrollLock();
   },
 
   async confirmMoveToWishlist() {
     const item = this.state.pendingRemoveItem;
     if (!item) return;
 
+    const productId = item.product_id || item.id;
     this.closeRemoveCartModal();
 
-    // 1. Move to wishlist if not already wishlisted
-    const isWishlisted = this.state.wishlist.some(w => w.id === item.product_id);
-    if (!isWishlisted) {
-      await this.toggleWishlist(item.product_id);
+    try {
+      // 1. Explicitly add product to wishlist
+      await fetch('/api/wishlist/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId })
+      });
+
+      // 2. Remove item from cart
+      if (item.cart_id) {
+        await fetch(`/api/cart/${item.cart_id}`, { method: 'DELETE' });
+      }
+
+      // 3. Re-fetch wishlist & cart, update UI, and display Wishlist Modal
+      await this.fetchWishlist();
+      await this.fetchCart();
+      this.renderWishlistGrid();
+      this.renderProducts();
+      this.showWishlistModal();
+    } catch (err) {
+      console.error('Error moving item to wishlist:', err);
     }
-
-    // 2. Remove item from cart
-    await this.removeCartItem(item.cart_id);
-
-    // 3. Re-fetch wishlist & cart, update UI, and display Wishlist Modal
-    await this.fetchWishlist();
-    await this.fetchCart();
-    this.renderWishlistGrid();
-    this.renderProducts();
-    this.showWishlistModal();
   },
 
   async confirmRemoveCartItem() {
@@ -1149,55 +1227,63 @@ const app = {
     }
 
     // Wishlist Recommendations Section ("From Your Wishlist ❤️")
-    // Filter out items already in cart AND filter out items that are OUT OF STOCK (stock_qty <= 0)
-    const cartProductIds = new Set(this.state.cart.map(c => c.product_id));
-    const inStockWishlist = this.state.wishlist.filter(w => {
-      const notInCart = !cartProductIds.has(w.id);
-      const isInStock = (w.stock_qty === undefined || w.stock_qty === null || w.stock_qty > 0);
-      return notInCart && isInStock;
-    });
+    // Strictly filter items from wishlist that:
+    // 1. Are NOT already in cart
+    // 2. Are IN STOCK (stock_qty > 0)
+    // 3. Are RELEVANT / SIMILAR to items in cart (matching category_slug, subcategory_slug, or brand_name)
+    // 4. If no matching wishlist item exists (or cart is empty), leave recommendation section empty!
+    if (this.state.cart.length > 0 && this.state.wishlist.length > 0) {
+      const cartProductIds = new Set(this.state.cart.map(c => c.product_id || c.id));
+      const cartCategories = new Set(this.state.cart.map(c => c.category_slug).filter(Boolean));
+      const cartSubcategories = new Set(this.state.cart.map(c => c.subcategory_slug).filter(Boolean));
+      const cartBrands = new Set(this.state.cart.map(c => c.brand_name).filter(Boolean));
 
-    if (inStockWishlist.length > 0) {
-      const cartCategories = new Set(this.state.cart.map(c => c.category_slug));
-      const cartBrands = new Set(this.state.cart.map(c => c.brand_name));
+      const relevantWishlist = this.state.wishlist.filter(w => {
+        const notInCart = !cartProductIds.has(w.id);
+        const isInStock = (w.stock_qty === undefined || w.stock_qty === null || w.stock_qty > 0);
+        if (!notInCart || !isInStock) return false;
 
-      // Sort so similar category/brand items appear first, showing ALL relevant items
-      const relevantWishlist = [...inStockWishlist].sort((a, b) => {
-        const aScore = cartCategories.has(a.category_slug) ? 2 : (cartBrands.has(a.brand_name) ? 1 : 0);
-        const bScore = cartCategories.has(b.category_slug) ? 2 : (cartBrands.has(b.brand_name) ? 1 : 0);
+        const isCategoryMatch = w.category_slug && cartCategories.has(w.category_slug);
+        const isSubcategoryMatch = w.subcategory_slug && cartSubcategories.has(w.subcategory_slug);
+        const isBrandMatch = w.brand_name && cartBrands.has(w.brand_name);
+
+        return isCategoryMatch || isSubcategoryMatch || isBrandMatch;
+      });
+
+      // Sort relevant wishlist items by match priority (category match > brand match)
+      relevantWishlist.sort((a, b) => {
+        const aScore = (a.category_slug && cartCategories.has(a.category_slug) ? 2 : 0) +
+                       (a.brand_name && cartBrands.has(a.brand_name) ? 1 : 0);
+        const bScore = (b.category_slug && cartCategories.has(b.category_slug) ? 2 : 0) +
+                       (b.brand_name && cartBrands.has(b.brand_name) ? 1 : 0);
         return bScore - aScore;
       });
 
-      html += `
-        <div class="cart-wishlist-suggestions">
-          <div class="wishlist-section-title">
-            <span class="heart-icon">❤️</span>
-            <span>From Your Wishlist (${relevantWishlist.length})</span>
-          </div>
-          ${relevantWishlist.map(item => {
-            const isCategoryMatch = cartCategories.has(item.category_slug);
-            const isBrandMatch = cartBrands.has(item.brand_name);
-            let matchBadge = '';
-            if (isCategoryMatch) matchBadge = '✨ Matches Cart Category';
-            else if (isBrandMatch) matchBadge = '✨ Similar Brand';
-
-            return `
-              <div class="wishlist-suggest-card">
-                <img src="${item.images[0] || ''}" class="wishlist-suggest-img" alt="${item.title}">
-                <div class="wishlist-suggest-info">
-                  <div class="wishlist-suggest-brand">${item.brand_name}</div>
-                  <div class="wishlist-suggest-title">${item.title}</div>
-                  ${matchBadge ? `<div style="font-size: 10px; color: #E80071; font-weight: 700;">${matchBadge}</div>` : ''}
-                  <div class="wishlist-suggest-price">₹${item.price.toLocaleString()}</div>
+      if (relevantWishlist.length > 0) {
+        html += `
+          <div class="cart-wishlist-suggestions">
+            <div class="wishlist-section-title">
+              <span class="heart-icon">❤️</span>
+              <span>From Your Wishlist (${relevantWishlist.length})</span>
+            </div>
+            ${relevantWishlist.map(item => {
+              return `
+                <div class="wishlist-suggest-card">
+                  <img src="${item.images[0] || ''}" class="wishlist-suggest-img" alt="${item.title}">
+                  <div class="wishlist-suggest-info">
+                    <div class="wishlist-suggest-brand">${item.brand_name}</div>
+                    <div class="wishlist-suggest-title">${item.title}</div>
+                    <div class="wishlist-suggest-price">₹${item.price.toLocaleString()}</div>
+                  </div>
+                  <button class="wishlist-move-btn" onclick="app.moveToBag(${item.id})">
+                    MOVE TO BAG 🛍️
+                  </button>
                 </div>
-                <button class="wishlist-move-btn" onclick="app.moveToBag(${item.id})">
-                  MOVE TO BAG 🛍️
-                </button>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      `;
+              `;
+            }).join('')}
+          </div>
+        `;
+      }
     }
 
     body.innerHTML = html;
@@ -1231,7 +1317,7 @@ const app = {
         <div class="product-card">
           <div class="product-image-wrap">
             <img src="${p.images[0] || ''}" class="product-img" alt="${p.title}">
-            <button class="wishlist-heart-btn active" onclick="app.toggleWishlist(${p.id})" title="Remove">✕</button>
+            <button class="wishlist-remove-subtle-btn" onclick="event.stopPropagation(); app.promptRemoveWishlistItem(${p.id})" title="Remove from Wishlist">✕</button>
           </div>
           <div class="product-info-wrap">
             <span class="product-brand">${p.brand_name}</span>
@@ -1240,10 +1326,19 @@ const app = {
               <span class="current-price">₹${p.price.toLocaleString()}</span>
               <span class="discount-badge">${p.discount_percent}% off</span>
             </div>
-            <button class="card-action-btn" onclick="app.moveToBag(${p.id})">Move to Bag</button>
+            <button class="card-action-btn" style="background: var(--primary-pink); color: #FFFFFF;" onclick="event.stopPropagation(); app.moveToBag(${p.id})">Move to Bag</button>
           </div>
         </div>
       `).join('');
+    }
+  },
+
+  syncBodyScrollLock() {
+    const activeModal = document.querySelector('.modal-overlay.open, .cart-drawer.open');
+    if (activeModal) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
     }
   },
 
@@ -1257,15 +1352,18 @@ const app = {
       overlay.classList.remove('open');
       drawer.classList.remove('open');
     }
+    this.syncBodyScrollLock();
   },
 
   showWishlistModal() {
     this.renderWishlistGrid();
     document.getElementById('wishlistModal').classList.add('open');
+    this.syncBodyScrollLock();
   },
 
   closeWishlistModal() {
     document.getElementById('wishlistModal').classList.remove('open');
+    this.syncBodyScrollLock();
   },
 
   openCheckoutModal() {
@@ -1282,10 +1380,12 @@ const app = {
     document.getElementById('chkTotalSaving').innerText = `₹${totalDiscount.toLocaleString()}`;
 
     document.getElementById('checkoutModal').classList.add('open');
+    this.syncBodyScrollLock();
   },
 
   closeCheckoutModal() {
     document.getElementById('checkoutModal').classList.remove('open');
+    this.syncBodyScrollLock();
   },
 
   selectPaymentMethod(method, element) {
