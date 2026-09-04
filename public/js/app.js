@@ -770,9 +770,22 @@ const app = {
     await this.removeCartItem(item.cart_id);
   },
 
+  scrollToPriceSummary() {
+    const el = document.getElementById('priceSummarySection');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  },
+
   renderCartDrawer() {
     const body = document.getElementById('cartBody');
+    const headerTitle = document.getElementById('cartHeaderTitle');
     if (!body) return;
+
+    const itemCount = this.state.cart.reduce((sum, i) => sum + i.quantity, 0);
+    if (headerTitle) {
+      headerTitle.innerHTML = `Bag <span>${itemCount} Items</span>`;
+    }
 
     let html = '';
 
@@ -793,25 +806,99 @@ const app = {
             <div class="cart-item-brand">${item.brand_name}</div>
             <div class="cart-item-title">${item.title}</div>
             <div class="cart-item-options">
-              <label style="font-size:11px; color:#666;">Size:
+              <label class="select-label">Size:
                 <select class="select-box" onchange="app.updateCartQty(${item.cart_id}, ${item.quantity})">
                   ${(item.sizes || ['S', 'M', 'L']).map(s => `<option value="${s}" ${s === item.selected_size ? 'selected' : ''}>${s}</option>`).join('')}
                 </select>
               </label>
-              <label style="font-size:11px; color:#666;">Qty:
+              <label class="select-label">Qty:
                 <select class="select-box" onchange="app.updateCartQty(${item.cart_id}, this.value)">
                   ${[1,2,3,4,5].map(q => `<option value="${q}" ${q === item.quantity ? 'selected' : ''}>${q}</option>`).join('')}
                 </select>
               </label>
             </div>
-            <div class="cart-item-price">
-              <span>₹${(item.price * item.quantity).toLocaleString()}</span>
-              <span style="font-size: 11px; color: #9CA3AF; text-decoration: line-through; margin-left: 6px;">₹${(item.mrp * item.quantity).toLocaleString()}</span>
-            </div>
+            <div class="return-policy-tag">7 Day Return</div>
           </div>
-          <button class="remove-cart-item" onclick="app.promptRemoveCartItem(${item.cart_id})" title="Remove item">✕</button>
+          <div class="cart-item-right-price">
+            <button class="remove-cart-item" onclick="app.promptRemoveCartItem(${item.cart_id})" title="Remove item">✕</button>
+            <div class="you-pay-text">You Pay <strong>₹${(item.price * item.quantity).toLocaleString()}</strong></div>
+            <div class="item-discount-subtext">${item.discount_percent}% off <span class="mrp-strikethrough">₹${(item.mrp * item.quantity).toLocaleString()}</span></div>
+          </div>
         </div>
       `).join('');
+
+      // Coupons Section
+      html += `
+        <div class="coupons-card">
+          <div class="coupons-left">
+            <span class="coupons-icon">🎟️</span>
+            <div>
+              <div class="coupons-title">Coupons</div>
+              <div class="coupons-subtext">Apply coupons and save extra</div>
+            </div>
+          </div>
+          <div class="coupons-arrow">›</div>
+        </div>
+      `;
+
+      // Price Summary Section (Bordered Card)
+      const { totalMrp, totalAmount, totalDiscount } = this.state.cartSummary;
+
+      html += `
+        <div class="price-summary-card" id="priceSummarySection">
+          <div class="price-summary-title">Price Summary</div>
+          <div class="price-summary-subtext">Prices are inclusive of all taxes</div>
+          
+          <div class="price-breakdown-row">
+            <span>Bag Total (${itemCount} items)</span>
+            <span class="price-val">₹${totalMrp.toLocaleString()}</span>
+          </div>
+          <div class="price-breakdown-row">
+            <span>Discount on MRP</span>
+            <span class="price-val green-text">- ₹${totalDiscount.toLocaleString()}</span>
+          </div>
+          <div class="price-breakdown-row">
+            <span>Sub Total</span>
+            <span class="price-val">₹${totalAmount.toLocaleString()}</span>
+          </div>
+          <div class="price-breakdown-row">
+            <span>Convenience Charges</span>
+            <span class="price-val green-text">Free</span>
+          </div>
+          
+          <div class="price-divider"></div>
+          
+          <div class="price-breakdown-row you-pay-row">
+            <span class="you-pay-label">You Pay</span>
+            <span class="you-pay-value">₹${totalAmount.toLocaleString()}</span>
+          </div>
+
+          ${totalDiscount > 0 ? `
+            <div class="savings-green-box">
+              <span class="check-circle">✔</span>
+              <span>Yay! You are saving ₹${totalDiscount.toLocaleString()}.</span>
+            </div>
+          ` : ''}
+        </div>
+      `;
+
+      // Trust Badges Row
+      html += `
+        <div class="trust-badges-row">
+          <div class="trust-item">
+            <span class="trust-icon">🛡️</span>
+            <span>Genuine products</span>
+          </div>
+          <div class="trust-item">
+            <span class="trust-icon">💳</span>
+            <span>Secure payments</span>
+          </div>
+          <div class="trust-item">
+            <span class="trust-icon">🔄</span>
+            <span>Easy returns</span>
+          </div>
+        </div>
+      `;
     }
 
     // Wishlist Recommendations Section ("From Your Wishlist ❤️")
@@ -856,10 +943,17 @@ const app = {
 
     body.innerHTML = html;
 
-    const { totalMrp, totalAmount, totalDiscount } = this.state.cartSummary;
-    document.getElementById('cartTotalMrp').innerText = `₹${totalMrp.toLocaleString()}`;
-    document.getElementById('cartTotalDiscount').innerText = `-₹${totalDiscount.toLocaleString()}`;
-    document.getElementById('cartTotalAmount').innerText = `₹${totalAmount.toLocaleString()}`;
+    // Update Sticky Footer Elements
+    const { totalAmount, totalDiscount } = this.state.cartSummary;
+    const savingsBanner = document.getElementById('cartSavingsBanner');
+    const footerTotal = document.getElementById('footerTotalAmount');
+
+    if (savingsBanner) {
+      savingsBanner.innerText = `You saved ₹${totalDiscount.toLocaleString()} on this purchase`;
+    }
+    if (footerTotal) {
+      footerTotal.innerText = `₹${totalAmount.toLocaleString()}`;
+    }
   },
 
   renderWishlistGrid() {

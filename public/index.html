@@ -318,32 +318,31 @@
 
   </main>
 
-  <!-- CART SLIDE-OVER DRAWER (Screenshot 4) -->
+  <!-- CART SLIDE-OVER DRAWER -->
   <div class="cart-drawer-overlay" id="cartOverlay" onclick="app.toggleCartDrawer(false)"></div>
   <div class="cart-drawer" id="cartDrawer">
     <div class="drawer-header">
-      <span class="drawer-title">Shopping Bag 👜</span>
-      <button class="close-drawer-btn" onclick="app.toggleCartDrawer(false)">✕</button>
+      <div class="drawer-header-left">
+        <button class="close-drawer-btn" onclick="app.toggleCartDrawer(false)">✕</button>
+        <span class="drawer-title" id="cartHeaderTitle">Bag <span>1 Items</span></span>
+      </div>
     </div>
 
     <div class="drawer-body" id="cartBody">
-      <!-- Rendered via JS -->
+      <!-- Rendered dynamically via app.renderCartDrawer() -->
     </div>
 
-    <div class="drawer-footer">
-      <div class="price-summary-row">
-        <span>Total MRP</span>
-        <span id="cartTotalMrp">₹0</span>
+    <div class="drawer-sticky-footer" id="cartStickyFooter">
+      <div class="savings-banner-bar" id="cartSavingsBanner">
+        You saved ₹0 on this purchase
       </div>
-      <div class="price-summary-row" style="color: var(--badge-green);">
-        <span>Bag Discount</span>
-        <span id="cartTotalDiscount">-₹0</span>
+      <div class="footer-action-row">
+        <div class="footer-price-col">
+          <div class="footer-total-price" id="footerTotalAmount">₹0</div>
+          <button class="view-details-link" onclick="app.scrollToPriceSummary()">View Details</button>
+        </div>
+        <button class="proceed-to-buy-btn" onclick="app.openCheckoutModal()">Proceed to Buy →</button>
       </div>
-      <div class="total-payable-row">
-        <span>Amount Payable</span>
-        <span id="cartTotalAmount">₹0</span>
-      </div>
-      <button class="proceed-btn" onclick="app.openCheckoutModal()">Proceed to Buy →</button>
     </div>
   </div>
 
